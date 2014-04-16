@@ -106,6 +106,7 @@ def parse(input_filename, output_filename):
                     extra = ""
                 extra = re.sub("CHARACTER SET [\w\d]+\s*", "", extra.replace("unsigned", ""))
                 extra = re.sub("COLLATE [\w\d]+\s*", "", extra.replace("unsigned", ""))
+                extra = extra.replace(" COMMENT ", ", -- COMMENT ")
 
                 # See if it needs type conversion
                 final_type = None
@@ -114,6 +115,9 @@ def parse(input_filename, output_filename):
                     type = "int4"
                     set_sequence = True
                     final_type = "boolean"
+                elif type.startswith("float("):
+                    size = type.split("(")[1].rstrip(")")
+                    type = "numeric(%s)" % (size)
                 elif type.startswith("int("):
                     type = "integer"
                     set_sequence = True
